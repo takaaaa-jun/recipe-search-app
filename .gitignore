@@ -1,0 +1,18 @@
+# Environment variables
+.env
+
+# Docker
+docker-compose.override.yml
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Dependencies
+node_modules/
+__pycache__/
+*.pyc
+
+# IDEs
+.vscode/
+.idea/
