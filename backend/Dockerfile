@@ -1,10 +1,11 @@
-FROM python:3.11-slim
+FROM golang:1.24-alpine
 
 WORKDIR /app
 
-COPY requirements.txt .
-RUN pip install --no-cache-dir -r requirements.txt
+RUN go install github.com/air-verse/air@v1.52.3
 
 COPY . .
 
-CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000", "--reload"]
+RUN go mod download
+
+CMD ["air", "-c", ".air.toml"]
