@@ -3,22 +3,30 @@ package main
 import (
 	"net/http"
 	"github.com/gin-gonic/gin"
+	"backend/db"
+	"backend/handlers"
 )
 
 func main() {
-	r := GinRouter()
-	r.Run(":8000") // 8000番ポートで起動
-}
+	database := db.Init()
+	defer database.Close()
 
-func GinRouter() *gin.Engine {
+	personalRecipeHandler := handlers.PersonalRecipeHandler{DB: database}
+
 	r := gin.Default()
-	
-	// ヘルスチェック用
-	r.GET("/", func(c *gin.Context) {
-		c.JSON(http.StatusOK, gin.H{
-			"message": "Hello!",
-		})
+
+	r.Use(func(c *gin.Context) {
+		c.Writer.Header().Set("Access-Control-Allow-Origin", "http://localhost:5173")
+		c.Writer.Header().Set("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS")
+		c.Writer.Header().Set("Access-Control-Allow-Headers", "Origin, Content-Type, X-CSRF-Token, Authorization")
+		c.Next()
+		if c.Request.Method == "OPTIONS" {
+			c.AbortWithStatus(http.StatusNoContent)
+			return
+		}
 	})
-	
-	return r
+
+	r.GET("/personal-recipes", personalRecipeHandler.PersonalRecipes)
+
+	r.Run(":8000")
 }
