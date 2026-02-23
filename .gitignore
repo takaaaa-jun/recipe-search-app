@@ -4,6 +4,9 @@
 # Docker
 docker-compose.override.yml
 
+# Temp
+tmp/
+
 # OS
 .DS_Store
 Thumbs.db
