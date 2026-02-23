@@ -7,7 +7,7 @@ services:
       - ./frontend:/app/frontend
     expose:
       - "8004"
-    command: npm run dev -- --host --port 8004
+    command: sh -c "npm install && npm run dev -- --host --port 8004"
     stdin_open: true
     tty: true
     networks:
@@ -28,24 +28,25 @@ services:
       - DB_USER=${DB_USER}
       - DB_PASSWORD=${DB_PASSWORD}
       - DB_NAME=${DB_NAME}
-    #depends_on:
-    #  - db
+    depends_on:
+      - postgres
     networks:
       - default
       - shared-gateway-net
     restart: unless-stopped
 
-#  db:
-#    image: mysql:8.0
-#    container_name: db
-#    environment:
-#      - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}
-#      - MYSQL_DATABASE=${MYSQL_DATABASE}
-#      - MYSQL_USER=${MYSQL_USER}
-#      - MYSQL_PASSWORD=${MYSQL_PASSWORD}
-#    volumes:
-#      - db_data:/var/lib/mysql
-#    restart: unless-stopped
+  postgres:
+    image: postgres:16-alpine
+    container_name: recipe-search-app-db
+    environment:
+      - POSTGRES_DB=${POSTGRES_DB}
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+    volumes:
+      - db_data:/var/lib/postgresql/data
+    networks:
+      - default
+    restart: unless-stopped
 
 volumes:
   db_data:
