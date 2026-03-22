@@ -5,8 +5,9 @@ services:
     working_dir: /app/frontend
     volumes:
       - ./frontend:/app/frontend
-    expose:
-      - "8004"
+    ports:
+      - "8004:8004"
+    # react-router-domを含めてインストールしてからdevサーバーを起動
     command: sh -c "npm install && npm run dev -- --host --port 8004"
     stdin_open: true
     tty: true
@@ -18,34 +19,20 @@ services:
   backend:
     build: ./backend
     container_name: recipe-search-app-backend
-    volumes:
-      - ./backend:/app
-    expose:
-      - "8005"
+    ports:
+      - "8005:8005"
     environment:
       - PORT=8005
-      - DB_HOST=${DB_HOST}
-      - DB_USER=${DB_USER}
-      - DB_PASSWORD=${DB_PASSWORD}
-      - DB_NAME=${DB_NAME}
-    depends_on:
-      - postgres
+      # MySQL接続設定（food_ideathon と同じDBに接続）
+      - MYSQL_HOST=${MYSQL_HOST}
+      - MYSQL_PORT=${MYSQL_PORT}
+      - MYSQL_USER=${MYSQL_USER}
+      - MYSQL_PASSWORD=${MYSQL_PASSWORD}
+      - MYSQL_DATABASE=${MYSQL_DATABASE}
     networks:
       - default
       - shared-gateway-net
-    restart: unless-stopped
-
-  postgres:
-    image: postgres:16-alpine
-    container_name: recipe-search-app-db
-    environment:
-      - POSTGRES_DB=${POSTGRES_DB}
-      - POSTGRES_USER=${POSTGRES_USER}
-      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
-    volumes:
-      - db_data:/var/lib/postgresql/data
-    networks:
-      - default
+      - food_ideathon_backend
     restart: unless-stopped
 
 volumes:
@@ -54,4 +41,6 @@ volumes:
 
 networks:
   shared-gateway-net:
+    external: true
+  food_ideathon_backend:
     external: true
